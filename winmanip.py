@@ -54,31 +54,16 @@ class WindowGrabber:
 		win32gui.DeleteObject(saveBitMap.GetHandle())
 		return cvIm
 		
-class Keyboard:
+# class Keyboard:
 	
-	def __init__(self):
-		pass
+	# def __init__(self):
+		# pass
 	
-	def attach(self, winName):
-		self.hwnd = win32gui.FindWindow(None, winName)
-		if 0 == self.hwnd:
-			raise WinManipException('Window with name "{}" does not exist'.format(winName))
+	# def attach(self, winName):
+		# self.hwnd = win32gui.FindWindow(None, winName)
+		# if 0 == self.hwnd:
+			# raise WinManipException('Window with name "{}" does not exist'.format(winName))
 			
-	def detach(self):
-		pass
-			
-	def down(self, key):
-		win32gui.SetForegroundWindow(self.hwnd)
-		win32api.keybd_event(key, 0, win32con.KEYEVENTF_EXTENDEDKEY, 0)
+	# def detach(self):
+		# pass
 		
-	def up(self, key):
-		win32gui.SetForegroundWindow(self.hwnd)
-		win32api.keybd_event(key, 0, win32con.KEYEVENTF_EXTENDEDKEY | win32con.KEYEVENTF_KEYUP, 0)
-		
-	def click(self, key):
-		win32gui.SetForegroundWindow(self.hwnd)
-		win32api.keybd_event(key, 0, win32con.KEYEVENTF_EXTENDEDKEY, 0)
-		win32api.keybd_event(key, 0, win32con.KEYEVENTF_EXTENDEDKEY | win32con.KEYEVENTF_KEYUP, 0)
-		
-	def isPressed(self, key):
-		return win32api.GetAsyncKeyState(key) != 0
