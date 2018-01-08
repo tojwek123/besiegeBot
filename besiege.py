@@ -23,7 +23,6 @@ class Vehicle:
 		
 		return result
 		
-		
 	def _findAreaCenter(self, im, colorRange):
 		center = None
 		#im = cv2.GaussianBlur(im, (5, 5), 0)
@@ -43,3 +42,25 @@ class Vehicle:
 				pass
 		
 		return (mask, center)
+		
+class ControllableVehicle(Vehicle):
+	
+	def __init__(self, frontMarker, backMarker, controlLayout):
+		super().__init__(frontMarker, backMarker)
+		self._controlLayout = controlLayout
+		
+	def setForwardSpeed(self, speed, keyboard):
+		if speed >= 0:
+			keyboard.setKeyPwm(self._controlLayout['forward'], speed)
+			keyboard.setKeyPwm(self._controlLayout['backward'], 0)
+		else:
+			keyboard.setKeyPwm(self._controlLayout['forward'], 0)
+			keyboard.setKeyPwm(self._controlLayout['backward'], -speed)
+			
+	def setRotationSpeed(self, speed, keyboard):
+		if speed >= 0:
+			keyboard.setKeyPwm(self._controlLayout['left'], speed)
+			keyboard.setKeyPwm(self._controlLayout['right'], 0)
+		else:
+			keyboard.setKeyPwm(self._controlLayout['left'], 0)
+			keyboard.setKeyPwm(self._controlLayout['right'], -speed)
