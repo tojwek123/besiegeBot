@@ -20,17 +20,17 @@ ControlLayout = {'left':     win32con.VK_LEFT,
 				 'right':    win32con.VK_RIGHT,
 				 'forward':  win32con.VK_UP,
 				 'backward': win32con.VK_DOWN,
-				 'fire':	 ord('C')}
+				 'shoot':	 ord('C')}
 			
 WinName = r'Besiege'
 
 def main(argv):
 	screen = wm.WindowGrabber()
-	myVehicle = besiege.ControllableVehicle(GreenMarker, BlueMarker, ControlLayout)
-	enemyVehicle = besiege.Vehicle(OrangeMarker, PurpleMarker)
 	kbd = Keyboard()
 	kbd.attach(WinName)
 	kbd.enableKeyPwm()
+	enemyVehicle = besiege.Vehicle(OrangeMarker, PurpleMarker)
+	myVehicle = besiege.AutoVehicle(GreenMarker, BlueMarker, ControlLayout, kbd, enemyVehicle)
 	
 	try:
 		screen.attach(WinName)
@@ -45,8 +45,15 @@ def main(argv):
 		
 		if im is not None:
 			im = cv2.pyrDown(im)
-			myPos = myVehicle.getPos(im)
-			enemyPos = enemyVehicle.getPos(im)
+			myVehicle.feedImage(im)
+			myPos = myVehicle.getPos()
+			enemyPos = myVehicle.getEnemyPos()
+			diffAngle = myVehicle.getOffTheLineAngle()
+			
+			if diffAngle is not None:
+				print('{:.3f}'.format(diffAngle) + ' ' * 10 + '\r', end='')
+				if diffAngle < 1 and diffAngle > -1:
+					pass#myVehicle.shoot()
 			
 			if 'front' in myPos and 'back' in myPos:
 				cv2.arrowedLine(im, myPos['back'], myPos['front'], (0, 0, 255), 2)
@@ -54,24 +61,15 @@ def main(argv):
 			if 'front' in enemyPos and 'back' in enemyPos:
 				cv2.arrowedLine(im, enemyPos['back'], enemyPos['front'], (0, 255, 0), 2)
 				
-			if 'front' in myPos and 'back' in myPos and 'front' in enemyPos and 'back' in enemyPos:
+			if 'front' in myPos and 'back' in myPos and 'front' in enemyPos:
 				cv2.line(im, myPos['back'], enemyPos['front'], (255, 0, 0), 2)
 				
-				if Keyboard.isShortcutPressed('CTRL+T'):
-					wasPressed = True
-					angle = trig.getAngleBetweenTwoLines(myPos['back'], myPos['front'], enemyPos['front'], myPos['back'])
-					rotationControl = int((180 - angle) * 1.5)
-					print(angle, rotationControl)
-					myVehicle.setRotationSpeed(rotationControl, kbd)
-					myVehicle.setForwardSpeed(100, kbd)
-				elif not Keyboard.isShortcutPressed('CTRL+T') and wasPressed:
-					wasPressed = False
-					myVehicle.setForwardSpeed(0, kbd)
-					myVehicle.setRotationSpeed(0, kbd)
-			elif wasPressed:
+			if Keyboard.isShortcutPressed('CTRL+T'):
+				wasPressed = True
+				myVehicle.setFollowEnemyAngle(True)
+			elif not Keyboard.isShortcutPressed('CTRL+T') and wasPressed:
 				wasPressed = False
-				myVehicle.setForwardSpeed(0, kbd)
-				myVehicle.setRotationSpeed(0, kbd)
+				myVehicle.setFollowEnemyAngle(False)
 				
 			cv2.imshow('Preview', im)
 			cv2.waitKey(1)

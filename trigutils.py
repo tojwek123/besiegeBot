@@ -16,7 +16,7 @@ def getAngleBetweenTwoLines(a1, a2, b1, b2):
 	else:
 		diff = b_angle - a_angle
 	
-	return diff
+	return float(diff)
 	
 		
 def getPtAngle(pt):
